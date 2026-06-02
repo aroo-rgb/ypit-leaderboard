@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YPIT AF — Referral Leaderboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orange: #E8500A;
+    --orange-dark: #c44008;
+    --orange-light: #fff0e8;
+    --orange-border: #f5c4a0;
+    --ink: #1a1a1a;
+    --mid: #666;
+    --light: #999;
+    --bg: #f9f5f2;
+    --surface: #ffffff;
+    --border: #e8e0d8;
+    --success-bg: #f0faf0;
+    --success: #2d7a2d;
+    --error-bg: #fff0f0;
+    --error: #cc2222;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  .container { max-width: 560px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 32px 0 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .header-tag {
+    display: inline-block;
+    background: var(--orange);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--ink);
+    margin-bottom: 8px;
+    line-height: 1.1;
+  }
+  .header p { font-size: 14px; color: var(--mid); font-weight: 300; line-height: 1.6; }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 12px;
+  }
+
+  /* Form elements */
+  input[type=text], input[type=email] {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input:focus { border-color: var(--orange); background: #fff; }
+
+  .row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+
+  button {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--ink);
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  button:hover { background: var(--bg); border-color: var(--orange); }
+  button.primary { background: var(--orange); color: #fff; border-color: var(--orange); }
+  button.primary:hover { background: var(--orange-dark); }
+  button.full { width: 100%; margin-top: 8px; }
+  button.small { font-size: 12px; padding: 7px 12px; }
+
+  /* Email tags */
+  .tags { min-height: 28px; margin: 8px 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--orange-light);
+    border: 1px solid var(--orange-border);
+    border-radius: 20px;
+    font-size: 12px;
+    padding: 3px 10px;
+    color: var(--orange-dark);
+  }
+  .tag-remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--orange);
+    font-size: 15px;
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Points display */
+  .pts-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .pts-name { font-size: 16px; font-weight: 500; }
+  .pts-val { font-size: 26px; font-weight: 600; color: var(--orange); line-height: 1; }
+  .pts-label { font-size: 11px; color: var(--mid); text-align: right; }
+
+  /* Messages */
+  .msg {
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 8px 0;
+  }
+  .msg-success { background: var(--success-bg); color: var(--success); }
+  .msg-error { background: var(--error-bg); color: var(--error); }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .tab {
+    flex: 1;
+    padding: 9px;
+    font-size: 13px;
+    font-weight: 500;
+    background: none;
+    border: none;
+    border-radius: 0;
+    color: var(--mid);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .tab:not(:last-child) { border-right: 1px solid var(--border); }
+  .tab.active { background: var(--orange); color: #fff; }
+
+  /* Leaderboard */
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .lb-row:last-child { border-bottom: none; }
+  .lb-rank { font-size: 14px; min-width: 28px; text-align: center; }
+  .lb-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--orange-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; color: var(--orange-dark);
+    flex-shrink: 0;
+  }
+  .lb-name { flex: 1; font-size: 14px; font-weight: 500; }
+  .lb-name .you { font-size: 11px; color: var(--orange); margin-left: 5px; font-weight: 400; }
+  .lb-score { text-align: right; }
+  .lb-pts { font-size: 14px; font-weight: 600; color: var(--orange); }
+  .lb-refs { font-size: 11px; color: var(--light); }
+
+  /* Admin table */
+  .admin-header {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 12px;
+  }
+  .admin-row {
+    display: grid;
+    grid-template-columns: 1fr 110px 50px;
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    align-items: center;
+  }
+  .admin-row:last-child { border-bottom: none; }
+  .admin-row.head { font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mid); }
+  .admin-email { color: var(--ink); word-break: break-all; }
+  .admin-sub { color: var(--mid); }
+  .admin-pts { color: var(--orange); font-weight: 600; text-align: right; }
+
+  .empty { text-align: center; padding: 32px 0; color: var(--mid); font-size: 14px; }
+  .spin { animation: spin 1s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 4px 0 12px; }
+
+  .how-it-works { background: var(--orange-light); border: 1px solid var(--orange-border); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; }
+  .how-it-works h3 { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--orange-dark); margin-bottom: 10px; }
+  .step { display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start; font-size: 13px; color: var(--orange-dark); }
+  .step-num { background: var(--orange); color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-tag">Young People In Tech</div>
+    <h1>The Artificial Future<br>Referral Leaderboard</h1>
+    <p>Refer your network to The Artificial Future — Lagos, June 13 2026.<br>Every email earns you 10 points.</p>
+  </div>
+
+  <div class="how-it-works">
+    <h3>How it works</h3>
+    <div class="step"><div class="step-num">1</div><div>Enter your name to join the leaderboard</div></div>
+    <div class="step"><div class="step-num">2</div><div>Add the email addresses of people you've referred</div></div>
+    <div class="step"><div class="step-num">3</div><div>Each unique email earns 10 points — watch your rank climb</div></div>
+  </div>
+
+  <!-- Register view -->
+  <div id="view-register" class="card">
+    <div class="card-label">Get started</div>
+    <div class="row">
+      <input type="text" id="username-input" placeholder="Your name or team name" style="flex:1;" onkeydown="if(event.key==='Enter')startUser()" />
+      <button class="primary" onclick="startUser()">Join</button>
+    </div>
+    <p style="font-size:12px;color:var(--mid);margin-top:4px;">Already joined? Enter your name again to continue adding referrals.</p>
+  </div>
+
+  <!-- Submit view -->
+  <div id="view-submit" class="card" style="display:none;">
+    <div class="pts-row">
+      <div>
+        <div style="font-size:11px;color:var(--mid);margin-bottom:2px;">Signed in as</div>
+        <div class="pts-name" id="display-username"></div>
+      </div>
+      <div style="text-align:right;">
+        <div class="pts-val" id="display-pts">0</div>
+        <div class="pts-label">points</div>
+      </div>
+    </div>
+    <hr class="divider">
+    <div class="card-label">Add referral emails</div>
+    <div class="row">
+      <input type="email" id="email-input" placeholder="friend@example.com" style="flex:1;" onkeydown="if(event.key==='Enter')addEmail()" />
+      <button onclick="addEmail()">+ Add</button>
+    </div>
+    <div class="tags" id="email-tags"></div>
+    <div id="submit-msg"></div>
+    <button class="primary full" onclick="submitEmails()">Submit referrals</button>
+    <button class="full small" style="margin-top:6px;" onclick="switchUser()">Switch user</button>
+  </div>
+
+  <!-- Leaderboard + Admin -->
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('leaderboard')">Leaderboard</button>
+      <button class="tab" onclick="showTab('admin')">YPIT team</button>
+    </div>
+
+    <div id="tab-leaderboard">
+      <div id="lb-list"><div class="empty">Loading...</div></div>
+      <button class="full small" style="margin-top:12px;" onclick="loadLeaderboard()">↻ Refresh</button>
+    </div>
+
+    <div id="tab-admin" style="display:none;">
+      <div class="admin-header">
+        <span style="font-size:13px;font-weight:500;">All submitted emails</span>
+        <button class="small" onclick="downloadCSV()">↓ Download CSV</button>
+      </div>
+      <div id="admin-list"><div class="empty">Click the YPIT team tab to load.</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API = '/api/referrals';
+let currentUser = null;
+let pendingEmails = [];
+let allEntries = [];
+
+function getInitials(name) {
+  return name.trim().split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+}
+function isValidEmail(e) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+}
+
+async function startUser() {
+  const name = document.getElementById('username-input').value.trim();
+  if (!name) { showMsg('submit-msg-reg', 'Please enter your name.', 'error'); return; }
+  currentUser = name;
+  document.getElementById('view-register').style.display = 'none';
+  document.getElementById('view-submit').style.display = 'block';
+  document.getElementById('display-username').textContent = name;
+  await refreshPoints();
+  loadLeaderboard();
+}
+
+function switchUser() {
+  currentUser = null;
+  pendingEmails = [];
+  document.getElementById('view-register').style.display = 'block';
+  document.getElementById('view-submit').style.display = 'none';
+  document.getElementById('username-input').value = '';
+  renderEmailTags();
+}
+
+async function refreshPoints() {
+  if (!currentUser) return;
+  try {
+    const res = await fetch(`${API}?action=leaderboard`);
+    const data = await res.json();
+    const me = (data.leaderboard || []).find(s => s.name.toLowerCase() === currentUser.toLowerCase());
+    document.getElementById('display-pts').textContent = me ? me.count * 10 : 0;
+  } catch(e) {}
+}
+
+function addEmail() {
+  const input = document.getElementById('email-input');
+  const email = input.value.trim().toLowerCase();
+  if (!isValidEmail(email)) { showMsg('submit-msg', 'Please enter a valid email address.', 'error'); return; }
+  if (pendingEmails.includes(email)) { showMsg('submit-msg', 'Already in your batch.', 'error'); return; }
+  pendingEmails.push(email);
+  input.value = '';
+  renderEmailTags();
+  document.getElementById('submit-msg').innerHTML = '';
+  input.focus();
+}
+
+function removeEmail(idx) {
+  pendingEmails.splice(idx, 1);
+  renderEmailTags();
+}
+
+function renderEmailTags() {
+  const c = document.getElementById('email-tags');
+  c.innerHTML = pendingEmails.map((e, i) =>
+    `<span class="tag">${e}<button class="tag-remove" onclick="removeEmail(${i})" aria-label="Remove">×</button></span>`
+  ).join('');
+}
+
+async function submitEmails() {
+  if (!pendingEmails.length) { showMsg('submit-msg', 'Add at least one email first.', 'error'); return; }
+  const btn = document.querySelector('#view-submit .primary');
+  btn.textContent = 'Submitting...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ emails: pendingEmails, submitter: currentUser })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    const added = data.added || 0;
+    const dupes = pendingEmails.length - added;
+    pendingEmails = [];
+    renderEmailTags();
+    await refreshPoints();
+    await loadLeaderboard();
+
+    let msg = added ? `${added} referral${added>1?'s':''} added (+${added*10} pts)` : '';
+    if (dupes) msg += (msg ? ' · ' : '') + `${dupes} already existed`;
+    showMsg('submit-msg', msg || 'No new emails added.', added ? 'success' : 'error');
+  } catch(e) {
+    showMsg('submit-msg', 'Something went wrong. Please try again.', 'error');
+  } finally {
+    btn.textContent = 'Submit referrals';
+    btn.disabled = false;
+  }
+}
+
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = `<div class="msg msg-${type}">${text}</div>`;
+  setTimeout(() => { if(el) el.innerHTML = ''; }, 4000);
+}
+
+async function loadLeaderboard() {
+  const el = document.getElementById('lb-list');
+  try {
+    const res = await fetch(`${API}?action=leaderboard`);
+    const data = await res.json();
+    const lb = data.leaderboard || [];
+
+    if (!lb.length) { el.innerHTML = '<div class="empty">No referrals yet. Be the first!</div>'; return; }
+
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = lb.map((s, i) => {
+      const isMe = currentUser && s.name.toLowerCase() === currentUser.toLowerCase();
+      const rank = i < 3 ? medals[i] : `${i+1}`;
+      return `<div class="lb-row">
+        <div class="lb-rank">${rank}</div>
+        <div class="lb-avatar">${getInitials(s.name)}</div>
+        <div class="lb-name">${s.name}${isMe ? '<span class="you">(you)</span>' : ''}</div>
+        <div class="lb-score">
+          <div class="lb-pts">${s.count * 10} pts</div>
+          <div class="lb-refs">${s.count} referral${s.count!==1?'s':''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="empty">Could not load leaderboard.</div>';
+  }
+}
+
+async function loadAdmin() {
+  const el = document.getElementById('admin-list');
+  el.innerHTML = '<div class="empty">Loading...</div>';
+  try {
+    const res = await fetch(`${API}?action=all`);
+    const data = await res.json();
+    allEntries = data.entries || [];
+
+    if (!allEntries.length) { el.innerHTML = '<div class="empty">No emails submitted yet.</div>'; return; }
+
+    el.innerHTML = `<div class="admin-row head"><div>Email</div><div>Submitted by</div><div style="text-align:right;">Pts</div></div>` +
+      allEntries.map(e => `<div class="admin-row">
+        <div class="admin-email">${e.email}</div>
+        <div class="admin-sub">${e.submitter}</div>
+        <div class="admin-pts">+10</div>
+      </div>`).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="empty">Could not load data.</div>';
+  }
+}
+
+function showTab(tab) {
+  document.getElementById('tab-leaderboard').style.display = tab === 'leaderboard' ? 'block' : 'none';
+  document.getElementById('tab-admin').style.display = tab === 'admin' ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', (i===0 && tab==='leaderboard') || (i===1 && tab==='admin'));
+  });
+  if (tab === 'admin') loadAdmin();
+}
+
+function downloadCSV() {
+  if (!allEntries.length) { alert('Load the admin tab first, then download.'); return; }
+  const rows = [['Email','Submitted By','Timestamp'], ...allEntries.map(e => [e.email, e.submitter, e.created_at])];
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'YPIT_AF_Referrals.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+loadLeaderboard();
+</script>
+</body>
+</html>

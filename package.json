@@ -1,0 +1,11 @@
+{
+  "name": "ypit-af-leaderboard",
+  "version": "1.0.0",
+  "description": "YPIT Artificial Future Referral Leaderboard",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}
